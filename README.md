@@ -1,36 +1,33 @@
-# 零售银行政策与合规 Agentic RAG 问答系统
+# Retail Bank Compliance Agentic RAG
 
-面向零售银行政策与合规场景的 Agentic RAG 参考实现。
+面向零售银行政策与合规问答场景的 Agentic RAG 系统。
 
-## 项目说明
+## Overview
 
-原项目从国家金融监管总局、中国人民银行、中国政府网等官方渠道收集了 200+ 篇现行有效监管政策、部门规章和规范性文件，并构建了可溯源、可更新、可评测的问答系统。
+This project builds an end-to-end retrieval-augmented generation pipeline for regulatory policy and compliance question answering. It combines document ingestion, hybrid retrieval, ranking, agentic orchestration, model fine-tuning, quantization, and serving into a modular codebase.
 
-本仓库是**开源参考实现**：
+The included corpus consists of public regulatory documents from official sources such as the National Financial Regulatory Administration, the People's Bank of China, and government websites.
 
-- 使用 5 份公开 PDF 作为样例语料
-- 不包含私有数据、内部文档或原始训练模型
-- 不声称复现原项目的 10w+ QA、95%+ Hit@1 或 93% 综合分
-- 目标是完整展示工程方法、代码结构和可运行流程
+## Key Features
 
-## 与简历对应关系
+- PDF parsing with PyMuPDF and table OCR
+- Markdown cleaning and title/image/table association
+- Parent-child chunking for retrieval and generation
+- Hybrid retrieval with BM25, dense embeddings, and learned sparse embeddings
+- Reciprocal rank fusion and cross-encoder reranking
+- Agent workflow with guardrails, routing, recovery, summarization, web search, and rejection
+- QA data generation, teacher-model distillation, pointwise and SFT dataset construction
+- LoRA fine-tuning, AWQ INT4 quantization, and vLLM serving adapters
+- Retrieval and generation evaluation metrics
 
-| 简历能力点 | 仓库实现 |
-| --- | --- |
-| 基于 QA 对构建 Pointwise 数据 | `src/compliance_rag/pipelines/qa_factory.py`、`teacher_trace.py` |
-| Dense + Sparse + BM25 召回与精排 | `src/compliance_rag/services/retrieval/service.py` |
-| Agentic 路由与渐进式自救 | `src/compliance_rag/services/agent/workflow.py` |
-| AWQ 量化与 vLLM 推理优化 | `src/compliance_rag/pipelines/training/` |
-| 评测指标 | `src/compliance_rag/pipelines/eval/metrics.py` |
-
-## 架构
+## Architecture
 
 ```text
 PDF
   -> PyMuPDF + PaddleOCR PP-StructureV3
-  -> LLM Clean
+  -> LLM Markdown cleaning
   -> MongoDB
-  -> Parent/Child Chunking
+  -> Parent/Child chunking
   -> Milvus
 
 Query
@@ -41,23 +38,27 @@ Query
       -> Web Search
       -> Reject
   -> Recovery
-  -> Postprocess
+  -> Postprocessing
+  -> Answer + citations + related images
 ```
 
-## 目录
+## Repository Layout
 
 ```text
 compliance-agentic-rag/
-  configs/
-  services/
-  pipelines/
+  configs/                 # runtime configuration
+  samples/                 # public sample PDFs
+  scripts/                 # runnable demo scripts
   src/compliance_rag/
-  tests/
-  infra/
-  docs/
+    adapters/              # PDF, OCR, Mongo, Milvus, in-memory adapters
+    core/                  # chunking, RRF, deduplication
+    pipelines/             # data, training, evaluation pipelines
+    services/              # retrieval, agent, and serving services
+  tests/                   # unit tests
+  docs/                    # architecture and status documentation
 ```
 
-## 快速启动
+## Quick Start
 
 ```bash
 python3.13 -m venv .venv
@@ -67,22 +68,22 @@ python3.13 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-## 目录
+The ingestion demo parses the PDFs in `samples/` and stores the resulting chunks and vectors in local memory. The query demo runs BM25, dense, and sparse retrieval, fuses them with RRF, and applies a score-based reranking pass.
 
-```text
-compliance-agentic-rag/
-  configs/                 # 配置
-  samples/                 # 公开样例 PDF
-  scripts/                 # 可运行 Demo
-  src/compliance_rag/
-    adapters/              # PDF、OCR、Mongo、Milvus、内存实现
-    core/                  # 切块、RRF、去重等纯逻辑
-    pipelines/             # 数据、训练、评测
-    services/              # 检索、Agent、服务入口
-  tests/                   # 单元测试
-  docs/                    # 架构、阶段说明
-```
+## Data and Deployment
 
-## 诚实声明
+The repository ships a small set of public sample documents for reproducible examples. It does not include private data, internal knowledge bases, trained model weights, or credentials.
 
-原项目的离线评测结果用于说明项目背景，不代表本仓库可以在公开样例上复现相同数字。仓库保留方法实现和评测代码，使用公开数据即可得到可复现的实验结果。
+Production integrations for MongoDB, Milvus, and cloud storage are provided as adapters. Model training, quantization, and vLLM serving are provided as configuration adapters and documented in the respective modules.
+
+## Evaluation
+
+Implemented metrics include:
+
+- Jaccard keyword similarity
+- semantic answer similarity
+- `Recall@K`
+- `Hit@K`
+- `MRR`
+
+The evaluation module is designed to be used with a golden QA dataset and a dataset version identifier, so every reported result can be reproduced independently.
