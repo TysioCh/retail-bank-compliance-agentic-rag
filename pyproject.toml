@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compliance-agentic-rag"
+version = "0.1.0"
+description = "Retail bank policy and compliance Agentic RAG"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.29",
+  "pydantic>=2.6",
+  "pymongo>=4.6",
+  "pymilvus>=2.4",
+  "langgraph>=0.1",
+  "pymupdf>=1.24",
+  "sentence-transformers>=2.7",
+  "rank-bm25>=0.2",
+  "pyyaml>=6.0",
+  "httpx>=0.27"
+]
+
+[project.optional-dependencies]
+ocr = [
+  "paddleocr>=2.7"
+]
+training = [
+  "transformers>=4.40",
+  "datasets>=2.20",
+  "ms-swift>=2.3",
+  "llamafactory>=0.8"
+]
+serving = [
+  "vllm>=0.5",
+  "autoawq>=0.2"
+]
+eval = [
+  "ragas>=0.1",
+  "locust>=2.24"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

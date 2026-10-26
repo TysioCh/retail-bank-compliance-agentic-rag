@@ -1,0 +1,43 @@
+project:
+  name: compliance-agentic-rag
+  environment: development
+  run_id_prefix: compliance_rag
+
+storage:
+  mongo_uri: "mongodb://localhost:27017"
+  mongo_database: "compliance_rag"
+  milvus_uri: "http://localhost:19530"
+  milvus_collection: "policy_chunks"
+  artifact_root: "artifacts"
+
+ingestion:
+  ocr_backend: "paddleocr"
+  cleaner_backend: "qwen"
+  child_token_limit: 256
+  child_overlap_tokens: 50
+  parent_token_limit: 512
+
+retrieval:
+  top_k_per_route: 50
+  rrf_k: 60
+  rrf_top_k: 50
+  reranker_top_k: 5
+  reranker_score_threshold: 0.5
+
+agent:
+  max_recovery_attempts: 2
+  query_rewrite_enabled: true
+  hyde_enabled: true
+
+training:
+  reranker_teacher: "Qwen3-Reranker-8B"
+  llm_teacher: "Qwen3-Max"
+  reranker_student: "Qwen3-Reranker-0.6B"
+  llm_student: "Qwen3-8B"
+  sft_epochs: 1
+  sft_framework: "llamafactory"
+
+serving:
+  single_card: true
+  vllm_port: 8000
+  quantization: "awq-int4"
