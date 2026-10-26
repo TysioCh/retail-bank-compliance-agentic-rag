@@ -1,0 +1,14 @@
+# Sample Documents
+
+These public regulatory documents are used only for running and testing the
+open-source ingestion/retrieval pipeline.
+
+## Files
+
+- 金融监管总局关于优化实施个人消费贷款财政贴息政策有关事项的通知.pdf
+- 关于促进养老理财业务持续健康发展的通知.pdf
+- 《金融机构消费者权益保护监管评价办法》.pdf
+- 银行保险机构资产管理产品信息披露...pdf
+- 《个人住房贷款管理办法（试行）》.pdf
+
+Do not commit private, sensitive, or internal documents to this repository.
