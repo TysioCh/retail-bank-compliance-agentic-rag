@@ -1,30 +1,14 @@
-# Retail Bank Compliance Agentic RAG
+# 零售银行政策与合规 Agentic RAG
 
-面向零售银行政策与合规问答场景的 Agentic RAG 系统。
+面向零售银行政策与合规问答场景的端到端 RAG 系统。
 
-## Overview / 项目概览
+## 项目概览
 
-This project builds an end-to-end retrieval-augmented generation pipeline for regulatory policy and compliance question answering. It combines document ingestion, hybrid retrieval, ranking, agentic orchestration, model fine-tuning, quantization, and serving into a modular codebase.
-
-本项目构建了一套面向零售银行政策与合规问答场景的端到端 RAG 系统，覆盖文档摄取、混合检索、排序、Agent 编排、模型微调、量化和服务化等完整链路。
-
-The included corpus consists of public regulatory documents from official sources such as the National Financial Regulatory Administration, the People's Bank of China, and government websites.
+本项目从监管政策、部门规章和规范性文件中构建可溯源、可评测的问答能力，覆盖文档摄取、混合检索、排序、Agent 编排、模型微调、量化和服务化等完整链路。
 
 示例语料来自国家金融监督管理总局、中国人民银行和政府网站公开发布的监管政策文件。
 
-## Key Features / 核心能力
-
-- PDF parsing with PyMuPDF and table OCR
-- Markdown cleaning and title/image/table association
-- Parent-child chunking for retrieval and generation
-- Hybrid retrieval with BM25, dense embeddings, and learned sparse embeddings
-- Reciprocal rank fusion and cross-encoder reranking
-- Agent workflow with guardrails, routing, recovery, summarization, web search, and rejection
-- QA data generation, teacher-model distillation, pointwise and SFT dataset construction
-- LoRA fine-tuning, AWQ INT4 quantization, and vLLM serving adapters
-- Retrieval and generation evaluation metrics
-
-中文能力说明：
+## 核心能力
 
 - 使用 PyMuPDF 解析 PDF，并支持表格 OCR
 - 文档清洗、Markdown 规整、标题/图片/表格关联
@@ -36,27 +20,7 @@ The included corpus consists of public regulatory documents from official source
 - LoRA 微调、AWQ INT4 量化、vLLM 服务化适配
 - 检索与生成质量评测指标
 
-## Architecture / 架构
-
-```text
-PDF
-  -> PyMuPDF + PaddleOCR PP-StructureV3
-  -> LLM Markdown cleaning
-  -> MongoDB
-  -> Parent/Child chunking
-  -> Milvus
-
-Query
-  -> Guardrail
-  -> Router
-      -> RAG
-      -> Summary
-      -> Web Search
-      -> Reject
-  -> Recovery
-  -> Postprocessing
-  -> Answer + citations + related images
-```
+## 架构
 
 ```text
 PDF
@@ -78,23 +42,23 @@ Query
   -> 答案 + 引用 + 关联图片
 ```
 
-## Repository Layout / 目录结构
+## 目录结构
 
 ```text
 compliance-agentic-rag/
-  configs/                 # runtime configuration / 运行配置
-  samples/                 # public sample PDFs / 公开样例 PDF
-  scripts/                 # runnable demo scripts / 可运行示例
+  configs/                 # 运行配置
+  samples/                 # 公开样例 PDF
+  scripts/                 # 可运行示例
   src/compliance_rag/
-    adapters/              # PDF, OCR, Mongo, Milvus, in-memory adapters
-    core/                  # chunking, RRF, deduplication
-    pipelines/             # data, training, evaluation pipelines
-    services/              # retrieval, agent, and serving services
-  tests/                   # unit tests / 单元测试
-  docs/                    # architecture and status documentation / 架构与状态文档
+    adapters/              # PDF、OCR、Mongo、Milvus、内存适配器
+    core/                  # 切块、RRF、去重等核心逻辑
+    pipelines/             # 数据、训练、评测流水线
+    services/              # 检索、Agent、服务入口
+  tests/                   # 单元测试
+  docs/                    # 架构与状态文档
 ```
 
-## Quick Start / 快速开始
+## 快速开始
 
 ```bash
 python3.13 -m venv .venv
@@ -104,32 +68,22 @@ python3.13 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-The ingestion demo parses the PDFs in `samples/` and stores the resulting chunks and vectors in local memory. The query demo runs BM25, dense, and sparse retrieval, fuses them with RRF, and applies a score-based reranking pass.
-
 `demo_ingest.py` 会解析 `samples/` 下的 PDF 并完成分块和向量化；`demo_query.py` 会执行三路召回、RRF 融合和精排，展示最终候选文档。
 
-## Data and Deployment / 数据与部署
-
-The repository ships a small set of public sample documents for reproducible examples. It does not include private data, internal knowledge bases, trained model weights, or credentials.
+## 数据与部署
 
 仓库只包含少量公开样例 PDF，不包含私有数据、内部知识库、训练模型权重或密钥信息。
 
-Production integrations for MongoDB, Milvus, and cloud storage are provided as adapters. Model training, quantization, and vLLM serving are provided as configuration adapters and documented in the respective modules.
-
 MongoDB、Milvus 和对象存储以 Adapter 形式接入；模型训练、量化和 vLLM 服务化以配置适配器和文档形式提供。
 
-## Evaluation / 评测
-
-Implemented metrics include:
+## 评测
 
 当前实现的主要评测指标包括：
 
-- Jaccard keyword similarity / Jaccard 关键词相似度
-- semantic answer similarity / 语义答案相似度
-- `Recall@K` / 召回率
-- `Hit@K` / 命中率
-- `MRR` / 平均倒数排名
-
-The evaluation module is designed to be used with a golden QA dataset and a dataset version identifier, so every reported result can be reproduced independently.
+- Jaccard 关键词相似度
+- 语义答案相似度
+- `Recall@K`
+- `Hit@K`
+- `MRR`
 
 评测模块要求使用带版本标识的金标 QA 数据集，以便每个实验结果都能独立复现。
