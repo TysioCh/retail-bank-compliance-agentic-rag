@@ -65,10 +65,13 @@ python3.13 -m venv .venv
 .venv/bin/python -m pip install -e .
 .venv/bin/python scripts/demo_ingest.py
 .venv/bin/python scripts/demo_query.py
+.venv/bin/python scripts/demo_answer.py
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
 `demo_ingest.py` 会解析 `samples/` 下的 PDF 并完成分块和向量化；`demo_query.py` 会执行三路召回、RRF 融合和精排，展示最终候选文档。
+
+`demo_answer.py` 使用检索到的原文片段构造带引用的确定性答案。该答案生成器仅用于本地演示，生产链路应替换为 Qwen3-8B。
 
 ## 数据与部署
 
@@ -87,3 +90,7 @@ MongoDB、Milvus 和对象存储以 Adapter 形式接入；模型训练、量化
 - `MRR`
 
 评测模块要求使用带版本标识的金标 QA 数据集，以便每个实验结果都能独立复现。
+
+## License
+
+MIT
